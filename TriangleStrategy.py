@@ -1,6 +1,7 @@
 import FCoinRestLib
 import time
-
+import json
+import datetime
 
 class TriangleStrategy(object):
     # minimum trading volumn for the reference coin
@@ -112,7 +113,13 @@ while True:
 
     between_limit_sell = test.price['between_buy_1']
     limit_win = between_limit_sell*test.price['rate_sell']/test.price['direct_buy']
-    if limit_win > 1.003:
+    if limit_win > 1.0001:
+        fout = open("Trading Record",'a')
+        fout.write(str(datetime.datetime.now()))
+        json.dump(test.price,fout)
+        fout.write("\n")
+        fout.close()
+
         print("Find out a trading chance!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         print(limit_win)
     time.sleep(2)
