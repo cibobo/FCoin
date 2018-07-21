@@ -112,13 +112,18 @@ while True:
     # if test.price['BSS_win'] > 1:
 
     between_limit_sell = test.price['between_buy_1']
-    limit_win = between_limit_sell*test.price['rate_sell']/test.price['direct_buy']
+    BSS_price = between_limit_sell*test.price['rate_sell']
+    limit_win = BSS_price/test.price['direct_buy']
     if limit_win > 1.0001:
         fout = open("TradingRecord",'a')
         fout.write(str(datetime.datetime.now()))
         # json.dump(test.price,fout)
-        fout.write("    ")
-        fout.write(limit_win)
+        fout.write("  |  ")
+        fout.write(str(between_limit_sell))
+        fout.write("  |  ")
+        fout.write(str(BSS_price))
+        fout.write("  |  ")
+        fout.write(str(limit_win))
         fout.write("\n")
         fout.close()
 
