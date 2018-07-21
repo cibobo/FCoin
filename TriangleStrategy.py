@@ -114,9 +114,11 @@ while True:
     between_limit_sell = test.price['between_buy_1']
     limit_win = between_limit_sell*test.price['rate_sell']/test.price['direct_buy']
     if limit_win > 1.0001:
-        fout = open("Trading Record",'a')
+        fout = open("TradingRecord",'a')
         fout.write(str(datetime.datetime.now()))
-        json.dump(test.price,fout)
+        # json.dump(test.price,fout)
+        fout.write("    ")
+        fout.write(limit_win)
         fout.write("\n")
         fout.close()
 
