@@ -8,15 +8,15 @@ import math
 
 class TriangleStrategy(object):
     # minimum trading volumn for the reference coin
-    # BTC: 0.001; ETH: 0.01
-    minNotional = 0.0006
+    # BTC: 0.001; ETH: 0.01; USDT: 6.23
+    minNotional = 6.23
 
     # standard volumn used for triangle strategy
     buy_volumn = minNotional * 1
 
     # minimum trading volumn unit for the symbol|ref_coin[0], symbol|ref_coin[1] and ref_coin[1]|ref_coin[0]
     # for the trading group FT/USDT, FT/BTC, BTC/USDT
-    minQty = [1, 1, 0.001]
+    minQty = [0.01, 1, 0.000001]
 
     # minPrice = [0.000001, 0.0001, 0.000001]
     # price_precise = [int(-math.log10(x)) for x in minPrice]
@@ -138,21 +138,20 @@ class TriangleStrategy(object):
         # self.price['BSS_win'] = self.price['BSS_price']/(self.price['direct_sell']+0.00001)
 
         # Prepare the volumn for the next price request
-        # calculate symbol buy volumn with min quantity of between coin (BTC, ETH)
-        symoble_buy = self.buy_volumn/self.price['between_buy']
-        symbole_sell =  self.buy_volumn/self.price['between_sell']
-
+        symoble_buy = self.buy_volumn/self.price['direct_buy']
+        symbole_sell =  self.buy_volumn/self.price['direct_sell']
+        
         # Direct trading volumn
         self.volumn[0]['buy'] = symoble_buy*self.volumn_toloranz
         self.volumn[0]['sell'] = symbole_sell*self.volumn_toloranz
 
         # Between trading volumn
-        self.volumn[1]['buy'] = symoble_buy*self.volumn_toloranz
-        self.volumn[1]['sell'] = symoble_buy*self.volumn_toloranz
+        self.volumn[1]['buy'] = symoble_buy*self.price['between_buy']*self.volumn_toloranz
+        self.volumn[1]['sell'] = symoble_buy*self.price['between_sell']*self.volumn_toloranz
 
         # Rate trading volumn
-        self.volumn[2]['buy'] = self.buy_volumn*self.volumn_toloranz
-        self.volumn[2]['sell'] = self.buy_volumn*self.volumn_toloranz
+        self.volumn[2]['buy'] = (self.buy_volumn/self.price['rate_buy'])*self.volumn_toloranz
+        self.volumn[2]['sell'] = (self.buy_volumn/self.price['rate_sell'])*self.volumn_toloranz
 
         print("Price: --------")
         print(self.price)
