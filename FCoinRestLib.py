@@ -2,6 +2,10 @@ import fcoin3
 import json
 import threading
 
+APIKey = '8d713ea46bfb94f874f689'
+privateKey = '787a73f4cab953dd41c87e'
+
+
 class getPriceThread (threading.Thread):
    def __init__(self, threadID, name, symbol, coin, volumn):
       threading.Thread.__init__(self)
@@ -80,3 +84,18 @@ def getCurrentPrice(symbol, ref_coin, volumn):
     price['asks_1'] = float(depth['asks'][0])
 
     return price
+
+def getBalance(coin_list):
+    fcoin = fcoin3.Fcoin()
+
+    fcoin.key = APIKey
+    fcoin.secret = privateKey.encode('UTF-8')
+
+    response = fcoin.get_balance()
+    balance = response['data']
+    # loop for all required coins, find the balance and save them
+    free = {}
+    for coin in coin_list:
+        # use generator expression to find out the key value from a list in dictionary
+        free[coin] = next(item for item in balance if item['currency']==coin)['available']
+    return free

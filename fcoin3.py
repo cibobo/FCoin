@@ -115,9 +115,17 @@ class Fcoin():
         """buy someting"""
         return self.create_order(symbol=symbol, side='buy', type='limit', price=str(price), amount=amount)
 
+    def buyMarket(self,symbol, amount):
+        """buy someting"""
+        return self.create_order(symbol=symbol, side='buy', type='market', amount=amount)
+
     def sell(self, symbol, price, amount):
         """sell someting"""
         return self.create_order(symbol=symbol, side='sell', type='limit', price=str(price), amount=amount)
+
+    def sellMarket(self, symbol, amount):
+        """sell someting"""
+        return self.create_order(symbol=symbol, side='sell', type='market', amount=amount)
 
     def get_order(self,order_id):
         """get specfic order"""
