@@ -201,6 +201,7 @@ class TriangleStrategy(object):
             for i in range(2):
                 self.limit_order = self.fcoin.get_order(orderId)
                 if 'data' in self.limit_order:
+                    self.limit_order = self.limit_order['data']
                     # if the order is filled, complete the triangle trading
                     if self.limit_order['state'] == "filled":
                         # finish the selling process
@@ -250,6 +251,7 @@ class TriangleStrategy(object):
                     # print("Waiting limit sell for target coin ...")
                     self.limit_order = self.fcoin.get_order(limit_order_Id)
                     if 'data' in self.limit_order:
+                        self.limit_order = self.limit_order['data']
                         if self.limit_order['state'] == "filled":
                             break
                         # if the trading is cancelled manually, wait 5 min for the next rund
@@ -323,6 +325,7 @@ class TriangleStrategy(object):
             # print("Waiting limit sell for bewteen coin ...")
             self.limit_order = self.fcoin.get_order(orderId)
             if 'data' in self.limit_order:
+                self.limit_order = self.limit_order['data']
                 if self.limit_order['state'] == "filled":
                     # update the basic buy volumn with last win
                     self.buy_volumn *= (1+self.target_win_rate)
@@ -353,6 +356,42 @@ class TriangleStrategy(object):
         
         self.trading_end_time = int(time.time()*1000)
 
+    def writeLog(self):
+        file_out = open('TradingInfo.log','a')
+        file_out.write(str(datetime.datetime.now())+'\n')
+        file_out.write(str(self.price) + '\n')
+
+        file_out.write("Fill the triangle trading condition ----------------------------------")
+        file_out.write("Calculated Buy Symbol: %f \n" %(self.cal_buy_volumn_symbol))
+        file_out.write("Real Buy Symbol: %f \n" %(self.real_buy_volumn_symbol))
+        file_out.write("Calculated Trading Between: %f \n"  %(self.cal_trading_volumn_between))
+        file_out.write("Real Trading Between: %f \n" %(self.real_trading_volumn_between))
+
+        file_out.write("Trading begin -------------------------------@ %f \n" %(self.trading_begin_time))
+        file_out.write("Step 1:\n")
+        json.dump(self.response_1, file_out)
+        file_out.write("Step 2:\n")
+        json.dump(self.response_2, file_out)
+        file_out.write("Step 3:\n")
+        json.dump(self.response_3, file_out)
+        file_out.write("Trading end -------------------------------@ %f \n" %(self.trading_end_time))
+
+        file_out.write("Calculated Balance:\n")
+        if self.price['BBS_win'] > self.trigger_threshold:
+            buy_volumn = self.real_trading_volumn_between*self.price['rate_buy']
+            sell_volumn = self.real_buy_volumn_symbol*self.price['direct_sell']
+            between_change = self.real_trading_volumn_between-self.cal_trading_volumn_between            
+        if self.price['BSS_win'] > self.trigger_threshold:
+            buy_volumn = self.real_buy_volumn_symbol*self.price['direct_buy']
+            sell_volumn = self.real_trading_volumn_between*self.price['rate_sell']
+            between_change = self.cal_trading_volumn_between-self.real_trading_volumn_between
+
+        file_out.write("Buy volumn: %f \n" %(buy_volumn))
+        file_out.write("Sell volumn: %f \n" %(sell_volumn))
+        file_out.write("Between balence: %f \n" %(between_change))
+        file_out.write("Win: %f \n" %(sell_volumn-buy_volumn+between_change*self.price['rate_sell']))
+
+        file_out.close()
 
 # possible triangle trading combination
 ref_coin = [['usdt', 'btc'], ['usdt','eth']]
@@ -376,6 +415,7 @@ while True:
     # if one trading is compelted
     if result == 1:
         print("trading is completed --------------------------------------")
+        test.writeLog()
         break
 
     time.sleep(1)
