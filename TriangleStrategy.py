@@ -9,10 +9,10 @@ import math
 class TriangleStrategy(object):
     # minimum trading volumn for the reference coin
     # BTC: 0.001; ETH: 0.01; USDT: 6.23
-    minNotional = 6.23
+    minNotional = 0.001
 
     # standard volumn used for triangle strategy
-    buy_volumn = minNotional * 1
+    # buy_volumn = minNotional * 1
 
     # minimum trading volumn unit for the symbol|ref_coin[0], symbol|ref_coin[1] and ref_coin[1]|ref_coin[0]
     # for the trading group FT/USDT, FT/BTC, BTC/USDT
@@ -145,6 +145,10 @@ class TriangleStrategy(object):
         #TODO Test Code
         # self.price['BBS_win'] = self.price['BSS_price']/self.price['direct_buy']
         # self.price['BSS_win'] = self.price['BSS_price']/(self.price['direct_sell']+0.00001)
+
+        # calculate buy volumn based on the BTC minNotation
+        self.buy_volumn = self.minNotional*self.price['rate_buy']
+        print("Current buy Volumn is: ", self.buy_volumn)
 
         # Prepare the volumn for the next price request
         symoble_buy = self.buy_volumn/self.price['direct_buy']
