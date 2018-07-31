@@ -190,7 +190,10 @@ class TriangleStrategy(object):
 
             # because of the minimum quantity of the trading, calculate how much target Coin(symbol) should be buy with triangle price
             self.cal_buy_volumn_symbol = self.buy_volumn/self.price['direct_buy']
-            self.real_buy_volumn_symbol = (int(self.cal_buy_volumn_symbol/self.minQty[0]))*self.minQty[0]
+            # self.real_buy_volumn_symbol = (int(self.cal_buy_volumn_symbol/self.minQty[0]))*self.minQty[0]
+            buy_volumn_precise = int(-math.log10(self.minQty[0]))
+            self.real_buy_volumn_symbol = round(self.cal_buy_volumn_symbol,buy_volumn_precise)
+            
 
             # becasue the fee is withdrewed directly from trading volumn, calculate the sell volumn from target coin
             self.cal_sell_volumn_symbol = self.real_buy_volumn_symbol*(1-self.fee_quote)
