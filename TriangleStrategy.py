@@ -16,7 +16,7 @@ class TriangleStrategy(object):
 
     # minimum trading volumn unit for the symbol|ref_coin[0], symbol|ref_coin[1] and ref_coin[1]|ref_coin[0]
     # for the trading group FT/USDT, FT/BTC, BTC/USDT
-    minQty = [0.01, 1, 0.000001]
+    minQty = [0.0001, 0.0001, 0.000001]
 
     # minPrice = [0.000001, 0.0001, 0.000001]
     # price_precise = [int(-math.log10(x)) for x in minPrice]
@@ -29,6 +29,9 @@ class TriangleStrategy(object):
 
     # target win rate
     target_win_rate = 0.0006
+
+    # Fee quote, which is use to calculate exactly selling volumn
+    fee_quote = 0.001
 
     def __init__(self, symbol, coin):
         self.fcoin = fcoin3.Fcoin()
@@ -179,11 +182,16 @@ class TriangleStrategy(object):
             self.cal_buy_volumn_symbol = self.buy_volumn/self.price['direct_buy']
             self.real_buy_volumn_symbol = (int(self.cal_buy_volumn_symbol/self.minQty[0]))*self.minQty[0]
 
-            # caclulate how much between reference coin is needed based on real buying volumn
-            self.cal_trading_volumn_between = self.real_buy_volumn_symbol*self.price['between_sell']
+            # becasue the fee is withdrewed directly from trading volumn, calculate the sell volumn from target coin
+            self.cal_sell_volumn_symbol = self.real_buy_volumn_symbol*(1-self.fee_quote)
+            self.real_sell_volumn_symbol = (int(self.cal_sell_volumn_symbol/self.minQty[1]))*self.minQty[1]
+
+            # caclulate how much between reference coin is needed based on real selling volumn
+            # because in FCoin, the market selling price is based on coin0 (usdt), use the bss price to calculate the volumn
+            self.cal_trading_volumn_between = self.real_sell_volumn_symbol*self.price['BSS_price']*(1-self.fee_quote)
+
             # use round up integer to calculate the needed between reference coin volumn
             # self.real_trading_volumn_between = (math.ceil(self.cal_trading_volumn_between/self.minQty[2]))*self.minQty[2]
-
             # use round instead of ceil to balance the volumn of Between Coin and Main Coin
             between_volumn_precise = int(-math.log10(self.minQty[2]))
             self.real_trading_volumn_between = round(self.cal_trading_volumn_between,between_volumn_precise)
@@ -191,6 +199,14 @@ class TriangleStrategy(object):
             # buy target coin with direct reference coin in Limit Trading
             # self.response_1 = BinanceRestLib.createLimitOrder(self.symbol,self.coin[0],"BUY",self.real_buy_volumn_symbol,self.price['direct_buy'],self.time_offset)
             self.response_1 = self.fcoin.buy(self.symbol+self.coin[0], self.price['direct_buy'], self.real_buy_volumn_symbol)
+
+            print("Fill the triangle trading condition ----------------------------------")
+            print("Calculated Buy Symbol: ", self.cal_buy_volumn_symbol)
+            print("Real Buy Symbol: ", self.real_buy_volumn_symbol)
+            print("Calculated Sell Symbol: ", self.cal_sell_volumn_symbol)
+            print("Real Sell Symbol: ", self.real_sell_volumn_symbol)
+            print("Calculated Trading Between: ", self.cal_trading_volumn_between)
+            print("Real Trading Between: ",self.real_trading_volumn_between)
 
             print(json.dumps(self.response_1, indent=4))
             
@@ -309,7 +325,7 @@ class TriangleStrategy(object):
         print("begin between sell")
 
         # create limit trading for between coin
-        self.response_2 = self.fcoin.sell(self.symbol+self.coin[1], self.price['between_sell'], self.real_buy_volumn_symbol)
+        self.response_2 = self.fcoin.sell(self.symbol+self.coin[1], self.price['between_sell'], self.real_sell_volumn_symbol)
 
         print(json.dumps(self.response_2, indent=4))
 
