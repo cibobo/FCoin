@@ -226,45 +226,45 @@ class TriangleStrategy(object):
 
                 return 1
             
-            # check whether some part of the trading is already completed before cancel
-            # get the current price
-            thread1 = FCoinRestLib.getPriceThread(1, "Thread-1", self.symbol, self.coin[0], self.volumn[0])
-            thread1.start()
+            # # check whether some part of the trading is already completed before cancel
+            # # get the current price
+            # thread1 = FCoinRestLib.getPriceThread(1, "Thread-1", self.symbol, self.coin[0], self.volumn[0])
+            # thread1.start()
 
-            self.cancel_order = self.fcoin.get_order(orderId)
-            thread1.join()
+            # self.cancel_order = self.fcoin.get_order(orderId)
+            # thread1.join()
 
-            # calculate the trading price
-            cancel_sell_price = round(float(thread1.price['asks_1'] - self.minPrice[0]),self.price_precise[0])
+            # # calculate the trading price
+            # cancel_sell_price = round(float(thread1.price['asks_1'] - self.minPrice[0]),self.price_precise[0])
 
-            # if only a part is completed and this part is bigger than the minimum Notional
-            #TODO: replace the parameter names with FCoin response
-            if (float(self.cancel_order['executedQty']) < float(self.cancel_order['origQty'])) and (float(self.cancel_order['executedQty'])*cancel_sell_price > self.minNotional):
+            # # if only a part is completed and this part is bigger than the minimum Notional
+            # #TODO: replace the parameter names with FCoin response
+            # if (float(self.cancel_order['executedQty']) < float(self.cancel_order['origQty'])) and (float(self.cancel_order['executedQty'])*cancel_sell_price > self.minNotional):
                    
-                # create a limit trade to sell all target coin back to coin[0], with the sell_1 price
-                self.limit_order = self.fcoin.sell(self.symbol+self.coin[0], cancel_sell_price, self.cancel_order['executedQty'])
+            #     # create a limit trade to sell all target coin back to coin[0], with the sell_1 price
+            #     self.limit_order = self.fcoin.sell(self.symbol+self.coin[0], cancel_sell_price, self.cancel_order['executedQty'])
                 
-                limit_order_Id = self.limit_order['data']
-                # wait until the trading is completed
-                while True:
-                    time.sleep(1)
-                    # print("Waiting limit sell for target coin ...")
-                    self.limit_order = self.fcoin.get_order(limit_order_Id)
-                    if 'data' in self.limit_order:
-                        self.limit_order = self.limit_order['data']
-                        if self.limit_order['state'] == "filled":
-                            break
-                        # if the trading is cancelled manually, wait 5 min for the next rund
-                        if self.limit_order['state'] == "canceled":
-                            print("Cancel the trading and sell the coin manually")
-                            time.sleep(300)
-                            break
-                    else:
-                        print("Unknown status:")
-                        print(json.dumps(self.limit_order, indent=4))
+            #     limit_order_Id = self.limit_order['data']
+            #     # wait until the trading is completed
+            #     while True:
+            #         time.sleep(1)
+            #         # print("Waiting limit sell for target coin ...")
+            #         self.limit_order = self.fcoin.get_order(limit_order_Id)
+            #         if 'data' in self.limit_order:
+            #             self.limit_order = self.limit_order['data']
+            #             if self.limit_order['state'] == "filled":
+            #                 break
+            #             # if the trading is cancelled manually, wait 5 min for the next rund
+            #             if self.limit_order['state'] == "canceled":
+            #                 print("Cancel the trading and sell the coin manually")
+            #                 time.sleep(300)
+            #                 break
+            #         else:
+            #             print("Unknown status:")
+            #             print(json.dumps(self.limit_order, indent=4))
 
-                print(json.dumps(self.cancel_order, indent=4))  
-                print(json.dumps(self.limit_order, indent=4))  
+            #     print(json.dumps(self.cancel_order, indent=4))  
+            #     print(json.dumps(self.limit_order, indent=4))  
 
         self.trading_end_time = int(time.time()*1000)
         return 0
