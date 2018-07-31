@@ -219,7 +219,9 @@ class TriangleStrategy(object):
             print(json.dumps(self.cancel_limit_order, indent=4))
             
             # some times the trading is already executed, in this case a error code will be returned
-            if 'msg' in self.cancel_limit_order:
+            # if 'msg' in self.cancel_limit_order:
+            # No return, if a HttpError Exception has been catched in fcoin3 in Siagned Request
+            if self.cancel_limit_order is None:
                 print("Special Case: the trading is already filled. Complete the rest selling phase")
                 # finish the selling process
                 self.triangleTradingSellLimit()
