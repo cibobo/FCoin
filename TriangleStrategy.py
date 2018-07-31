@@ -194,7 +194,7 @@ class TriangleStrategy(object):
 
             # caclulate how much between reference coin is needed based on real selling volumn
             # because in FCoin, the market selling price is based on coin0 (usdt), use the bss price to calculate the volumn
-            self.cal_trading_volumn_between = self.real_sell_volumn_symbol*self.price['BSS_price']*(1-self.fee_quote)
+            self.cal_trading_volumn_between = self.real_sell_volumn_symbol*self.price['between_sell']*(1-self.fee_quote)
 
             # use round up integer to calculate the needed between reference coin volumn
             # self.real_trading_volumn_between = (math.ceil(self.cal_trading_volumn_between/self.minQty[2]))*self.minQty[2]
