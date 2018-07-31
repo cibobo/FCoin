@@ -16,7 +16,7 @@ class TriangleStrategy(object):
 
     # minimum trading volumn unit for the symbol|ref_coin[0], symbol|ref_coin[1] and ref_coin[1]|ref_coin[0]
     # for the trading group FT/USDT, FT/BTC, BTC/USDT
-    minQty = [0.0001, 0.0001, 0.000001]
+    # minQty = [0.0001, 0.0001, 0.000001]
 
     # minPrice = [0.000001, 0.0001, 0.000001]
     # price_precise = [int(-math.log10(x)) for x in minPrice]
@@ -53,7 +53,6 @@ class TriangleStrategy(object):
             self.volumn.append({'buy':self.minQty[i],'sell':self.minQty[i]})
 
         
-
     def saveAccountInfo(self):
         file_out = open('AccountInfo.log','a')
         # save date time
@@ -72,27 +71,34 @@ class TriangleStrategy(object):
 
         # minimum trading price unit for the symbol|ref_coin[0], symbol|ref_coin[1] and ref_coin[1]|ref_coin[0]
         self.minPrice = []
-
         self.price_precise = []
+        self.minQty = []
 
         # get exchange info from symbol|ref_coin[0]
         # get all filters for the target trading symbol
         filters = next(item for item in exchangeInfo if item['name'] == str(self.symbol+self.coin[0]))['price_decimal']
         self.price_precise.append(filters)
+        Qty = next(item for item in exchangeInfo if item['name'] == str(self.symbol+self.coin[0]))['amount_decimal']
+        self.minQty.append(10**(-1*Qty))
 
         # get exchange info from symbol|ref_coin[1]
         filters = next(item for item in exchangeInfo if item['name'] == str(self.symbol+self.coin[1]))['price_decimal']
         self.price_precise.append(filters)
+        Qty = next(item for item in exchangeInfo if item['name'] == str(self.symbol+self.coin[1]))['amount_decimal']
+        self.minQty.append(10**(-1*Qty))
 
         # get exchange info from ref_coin[1]|ref_coin[0]
         filters = next(item for item in exchangeInfo if item['name'] == str(self.coin[1]+self.coin[0]))['price_decimal']
         self.price_precise.append(filters)
+        Qty = next(item for item in exchangeInfo if item['name'] == str(self.coin[1]+self.coin[0]))['amount_decimal']
+        self.minQty.append(10**(-1*Qty))
 
         # calculate the precise
         self.minPrice = [math.pow(10,-x) for x in self.price_precise]
 
         print(self.minPrice)
         print(self.price_precise)
+        print(self.minQty)
 
     def getTrianglePrice(self):   
         # Create 3 threads to get the 3 prices of triangle trading parallel
