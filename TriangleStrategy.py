@@ -221,6 +221,7 @@ class TriangleStrategy(object):
             print("Calculated Trading Between: ", self.cal_trading_volumn_between)
             print("Real Trading Between: ",self.real_trading_volumn_between)
 
+            print("Response_1------------------------")
             print(json.dumps(self.response_1, indent=4))
             
             # get the order id
@@ -245,6 +246,7 @@ class TriangleStrategy(object):
 
             # if the limit trading is not taken by others, cancel it
             self.cancel_limit_order = self.fcoin.cancel_order(orderId)
+            print("cancel_limit_order------------------------")
             print(json.dumps(self.cancel_limit_order, indent=4))
             
             # some times the trading is already executed, in this case a error code will be returned
@@ -263,6 +265,7 @@ class TriangleStrategy(object):
             thread1.start()
 
             self.cancel_order = self.fcoin.get_order(orderId)
+            print("cancel_order------------------------")
             print(json.dumps(self.cancel_order, indent=4))
 
             thread1.join()
@@ -276,9 +279,9 @@ class TriangleStrategy(object):
                 self.cancel_order = self.cancel_order['data']
                 # check whether the state is marked as "partial_canceled"
                 if self.cancel_order['state'] == 'partial_canceled':
-
+                    print("Sell the not canceled part")
                     # calculate already filled volumn
-                    cal_cancel_volumn = self.cancel_order['filled_amount'] - self.cancel_order['fill_fees']
+                    cal_cancel_volumn = float(self.cancel_order['filled_amount']) - float(self.cancel_order['fill_fees'])
                     real_cancel_volumn = (int(cal_cancel_volumn/self.minQty[0]))*self.minQty[0]
 
                     # create a limit trade to sell all target coin back to coin[0], with the sell_1 price
@@ -305,6 +308,12 @@ class TriangleStrategy(object):
                             print(json.dumps(self.limit_order, indent=4))
                       
                     print(json.dumps(self.limit_order, indent=4))  
+                
+                if self.cancel_order['state'] == 'filled':
+                    print("Trade is canceled at the same time as the state is returned")
+                    # finish the selling process
+                    self.triangleTradingSellLimit()
+                    return 1
 
         self.trading_end_time = int(time.time()*1000)
         return 0
