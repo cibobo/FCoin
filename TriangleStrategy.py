@@ -208,6 +208,7 @@ class TriangleStrategy(object):
             # becasue the fee is withdrewed directly from trading volumn, calculate the sell volumn from target coin
             self.cal_sell_volumn_symbol = self.real_buy_volumn_symbol*(1-self.fee_quote)
             self.real_sell_volumn_symbol = (int(self.cal_sell_volumn_symbol/self.minQty[1]))*self.minQty[1]
+            self.real_sell_volumn_symbol = round(self.real_sell_volumn_symbol, buy_volumn_precise)
 
             # caclulate how much between reference coin is needed based on real selling volumn
             # because in FCoin, the market selling price is based on coin0 (usdt), use the bss price to calculate the volumn
