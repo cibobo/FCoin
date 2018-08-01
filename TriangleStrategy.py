@@ -41,10 +41,6 @@ class TriangleStrategy(object):
         self.coin = coin
         self.price = {}
 
-        self.balance_coin_list = coin
-        self.balance_coin_list.append(symbol)
-        self.saveAccountInfo()
-
         self.getExchangeInfo()
 
         # Use traiding minQty to ask first price, so that the requried buy/sell volumn can be estimated
@@ -52,8 +48,14 @@ class TriangleStrategy(object):
         for i in range(3):
             self.volumn.append({'buy':self.minQty[i],'sell':self.minQty[i]})
 
-        
+        self.balance_coin_list = coin
+        self.balance_coin_list.append(symbol)
+        self.saveAccountInfo()
+
     def saveAccountInfo(self):
+        # get the current price
+        self.getTrianglePrice()
+
         file_out = open('AccountInfo.log','a')
         # save date time
         file_out.write(str(datetime.datetime.now())+'\n')
@@ -62,6 +64,14 @@ class TriangleStrategy(object):
         # get balance
         balance = FCoinRestLib.getBalance(self.balance_coin_list)
         json.dump(balance, file_out)
+        file_out.write("\n")
+
+        # calculate the total price in coin 0 (usdt)
+        symbol_free = float(balance[self.symbol])*self.price['direct_sell']
+        between_free = float(balance[self.coin[1]])*self.price['rate_sell']
+        total_free = float(balance[self.coin[0]]) + symbol_free + between_free
+        file_out.write("Total balance in " + str(self.coin[0]) + " is: ")
+        file_out.write(str(total_free))
 
         file_out.write('\n\n')
         file_out.close()
@@ -377,7 +387,7 @@ class TriangleStrategy(object):
                 self.limit_order = self.limit_order['data']
                 if self.limit_order['state'] == "filled":
                     # update the basic buy volumn with last win
-                    self.buy_volumn *= (1+self.target_win_rate)
+                    self.minNotional *= (1+self.target_win_rate)
                     print("New Basic Buy Volumn is: ", self.buy_volumn)
                     break
                 # if the trading is cancelled manually, wait 5 min for the next rund
@@ -442,29 +452,3 @@ class TriangleStrategy(object):
 
         file_out.close()
 
-# possible triangle trading combination
-ref_coin = [['usdt', 'btc'], ['usdt','eth']]
-
-test = TriangleStrategy('ft',ref_coin[0])
-
-while True:
-    # test.getTrianglePrice()
-    # if test.price['BSS_win'] > 1:
-
-    # between_limit_sell = test.price['between_buy_1']
-    # limit_win = between_limit_sell*test.price['rate_sell']/test.price['direct_buy']
-    # if limit_win > 1.003:
-    #     print("Find out a trading chance!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    #     print(limit_win)
-    # time.sleep(2)
-
-
-    test.getTrianglePrice()
-    result = test.triangleTradingLimitTwice()
-    # if one trading is compelted
-    if result == 1:
-        print("trading is completed --------------------------------------")
-        test.writeLog()
-        break
-
-    time.sleep(1)
