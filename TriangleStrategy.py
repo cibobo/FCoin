@@ -435,20 +435,9 @@ class TriangleStrategy(object):
         json.dump(self.response_3, file_out)
         file_out.write("Trading end -------------------------------@ %f \n" %(self.trading_end_time))
 
-        file_out.write("Calculated Balance:\n")
-        if self.price['BBS_win'] > self.trigger_threshold:
-            buy_volumn = self.real_trading_volumn_between*self.price['rate_buy']
-            sell_volumn = self.real_buy_volumn_symbol*self.price['direct_sell']
-            between_change = self.real_trading_volumn_between-self.cal_trading_volumn_between            
-        if self.price['BSS_win'] > self.trigger_threshold:
-            buy_volumn = self.real_buy_volumn_symbol*self.price['direct_buy']
-            sell_volumn = self.real_trading_volumn_between*self.price['rate_sell']
-            between_change = self.cal_trading_volumn_between-self.real_trading_volumn_between
-
-        file_out.write("Buy volumn: %f \n" %(buy_volumn))
-        file_out.write("Sell volumn: %f \n" %(sell_volumn))
-        file_out.write("Between balence: %f \n" %(between_change))
-        file_out.write("Win: %f \n" %(sell_volumn-buy_volumn+between_change*self.price['rate_sell']))
+        file_out.write("Buy volumn: %f \n" %(self.real_buy_volumn_symbol))
+        file_out.write("Sell volumn: %f \n" %(self.real_sell_volumn_symbol))
+        file_out.write("Between Sell volumn: %f \n" %(self.real_trading_volumn_between))
 
         file_out.close()
 
