@@ -320,7 +320,7 @@ class TriangleStrategy(object):
                       
                     print(json.dumps(self.limit_order, indent=4))  
                 
-                if self.cancel_order['state'] == 'filled':
+                if self.cancel_order['state'] == 'filled' or self.cancel_order['state'] == 'pending_cancel':
                     print("Trade is canceled at the same time as the state is returned")
                     # finish the selling process
                     self.triangleTradingSellLimit()
