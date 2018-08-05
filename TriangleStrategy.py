@@ -288,6 +288,22 @@ class TriangleStrategy(object):
             # check whether the response is sucessfully
             if 'data' in self.cancel_order:
                 self.cancel_order = self.cancel_order['data']
+                # if the state is pending, wait, until the handling in server is finished
+                if self.cancel_order['state'] == 'pending_cancel':
+                    while True:
+                        time.sleep(1)
+                        self.cancel_order = self.fcoin.get_order(orderId)
+                        print("Pending cancel_order------------------------")
+                        print(json.dumps(self.cancel_order, indent=4))
+                        if 'data' in self.cancel_order:
+                            self.cancel_order = self.cancel_order['data']
+                            if self.cancel_order['state'] != 'pending_cancel':
+                                break
+                            else:
+                                print("Still pending cancel")
+                        else:
+                            print("Bed Server response during the cancel pending")
+
                 # check whether the state is marked as "partial_canceled"
                 if self.cancel_order['state'] == 'partial_canceled':
                     print("Sell the not canceled part")
@@ -320,7 +336,8 @@ class TriangleStrategy(object):
                       
                     print(json.dumps(self.limit_order, indent=4))  
                 
-                if self.cancel_order['state'] == 'filled' or self.cancel_order['state'] == 'pending_cancel':
+                # if the order has been already filled
+                if self.cancel_order['state'] == 'filled':
                     print("Trade is canceled at the same time as the state is returned")
                     # finish the selling process
                     self.triangleTradingSellLimit()
