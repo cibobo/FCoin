@@ -21,8 +21,11 @@ while True:
     # time.sleep(2)
 
 
-    test.getTrianglePrice()
-    result = test.triangleTradingLimitTwice()
+    if test.getTrianglePrice():
+        result = test.triangleTradingLimitTwice()
+    else:
+        result = 0
+        
     # if one trading is compelted
     if result == 1:
         print("Trading ", trading_times, " is completed --------------------------------------")

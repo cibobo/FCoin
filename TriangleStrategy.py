@@ -126,6 +126,10 @@ class TriangleStrategy(object):
         thread2.join()
         thread3.join()
 
+        if 'NAN' in thread1.price.values() or 'NAN' in thread2.price.values() or 'NAN' in thread3.price.values():
+            print("Market depth is too shallow, wait for another round")
+            return 0
+        
         # Get the price from thread back and calculate the triangle price
         self.price['direct_buy'] = thread1.price['asks_vol']
         self.price['direct_sell'] = thread1.price['bids_vol']
@@ -180,6 +184,8 @@ class TriangleStrategy(object):
         print(self.price)
         print("Volumn: --------")
         print(self.volumn)
+
+        return 1
 
 
     # Use limit Direct Buy and also limit sell of between coin
