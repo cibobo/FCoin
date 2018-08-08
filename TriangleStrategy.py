@@ -315,7 +315,7 @@ class TriangleStrategy(object):
                     print("Sell the not canceled part")
                     # calculate already filled volumn
                     cal_cancel_volumn = float(self.cancel_order['filled_amount']) - float(self.cancel_order['fill_fees'])
-                    real_cancel_volumn = (int(cal_cancel_volumn/self.minQty[0]))*self.minQty[0]
+                    real_cancel_volumn = round(cal_cancel_volumn, buy_volumn_precise)
 
                     # create a limit trade to sell all target coin back to coin[0], with the sell_1 price
                     self.limit_order = self.fcoin.sell(self.symbol+self.coin[0], cancel_sell_price, real_cancel_volumn)
